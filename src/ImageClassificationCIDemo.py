@@ -8,6 +8,13 @@ from torchvision import transforms
 CLIENT = Algorithmia.client()
 SMID_ALGO = "algo://util/SmartImageDownloader/0.2.x"
 LABEL_PATH = "data://AlgorithmiaSE/image_cassification_demo/imagenet_class_index.json"
+MODEL_PATHS = {
+    'mobilenet': 'data://AlgorithmiaSE/image_cassification_demo/mobilenet_v2-b0353104.pth',
+    "squeezenet": 'data://AlgorithmiaSE/image_cassification_demo/squeezenet1_1-f364aa15.pth',
+    'vgg13_bn': 'data://AlgorithmiaSE/image_cassification_demo/vgg16-397923af.pth',
+    'alexnet': 'data://AlgorithmiaSE/image_cassification_demo/alexnet-owt-4df8aa71.pth',
+    'densenet': 'data://AlgorithmiaSE/image_cassification_demo/densenet121-a639ec97.pth'
+}
 
 def load_labels():
     local_path = CLIENT.file(LABEL_PATH).getFile().name
@@ -19,13 +26,19 @@ def load_labels():
 
 def load_model(name):
     if name == "mobilenet":
-        model = models.mobilenet_v2(pretrained=True)
+        model = models.mobilenet_v2()
+        models.densenet121()
+        weights = torch.load(CLIENT.file(MODEL_PATHS['mobilenet']).getFile().name)
     elif name == "squeezenet":
-        model = models.squeezenet1_1(pretrained=True)
+        model = models.squeezenet1_1()
+        weights = torch.load(CLIENT.file(MODEL_PATHS['squeezenet']).getFile().name)
     elif name == "vgg16":
-        model = models.vgg16(pretrained=True)
+        model = models.vgg16_bn()
+        weights = torch.load(CLIENT.file(MODEL_PATHS['vgg16']).getFile().name)
     else:
-        model = models.alexnet(pretrained=True)
+        model = models.alexnet()
+        weights = torch.load(CLIENT.file(MODEL_PATHS['alexnet']).getFile().name)
+    model.load_state_dict(weights)
     return model.float().eval()
 
 
@@ -104,19 +117,30 @@ labels = load_labels()
 
 if __name__ == "__main__":
     input = {"data": [
-                 {"image_url": "https://i.imgur.com/bXdORXl.jpg", "label": "pomeranian"},
+                 {"image_url": "https://i.imgur.com/bXdORXl.jpg", "label": "malamute"},
                  {"image_url": "https://i.imgur.com/YcAZMxM.jpg", "label": "pomeranian"},
+                 {"image_url":  "https://www.flickr.com/photos/9437621@N05/16688757452/in/photolist-9KN9-graCwf-4y2kUz-rqJfas-rqJgvo-qtPW8A-k9oVMa-gRxwTm-gRysCV-gRxwqE-gRxw6w-gRxrJU-gRyqnc-5mauq3-gRxv91-gRytVe-gRyo82-gRxuw7-4BH9Z9-naBPfT-4Tx5UD", "label":  "malamute"},
+                 {"image_url": "https://i.imgur.com/zdMdO70.jpg", "label": "lion"},
+                 {"image_url": "https://i.imgur.com/ivkGMQb.jpeg", "label": "lion"},
                  {"image_url": "https://i.imgur.com/QMRNUMN.jpg", "label": "necklace"},
                  {"image_url": "https://i.imgur.com/o7WP6Px.jpg", "label": "necklace"},
                  {"image_url": "https://i.imgur.com/FzwSR.jpg", "label": "manhole cover"},
                  {"image_url": "https://i.imgur.com/EzllwpE.jpg", "label": "cardigan"},
-                {"image_url": "https://i.imgur.com/HMvOHn7.jpg", "label": "cardigan"},
-                {"image_url": "https://i.imgur.com/xcLDUQd.jpg", "label": "white wolf"},
-                {"image_url": "https://i.imgur.com/gN6zgtN.jpg", "label": "lotion"},
-                {"image_url": "https://i.imgur.com/MCt8OWb.jpg", "label": "burrito"},
-                {"image_url": "https://i.imgur.com/lhWanDq.jpg", "label": "basketball"},
-                {"image_url": "https://i.imgur.com/BZsMhIY.jpeg", "label": "lab coat"},
-                     ], "n": 3, "operation": "benchmark"}
+                 {"image_url": "https://i.imgur.com/HMvOHn7.jpg", "label": "cardigan"},
+                 {"image_url": "https://i.imgur.com/xcLDUQd.jpg", "label": "white wolf"},
+                 {"image_url": "https://i.imgur.com/gN6zgtN.jpg", "label": "lotion"},
+                 {"image_url": "https://i.imgur.com/MCt8OWb.jpg", "label": "burrito"},
+                 {"image_url": "https://i.imgur.com/lhWanDq.jpg", "label": "basketball"},
+                 {"image_url": "https://i.imgur.com/BZsMhIY.jpeg", "label": "lab coat"},
+                 {"image_url": "https://i.imgur.com/mVbWXXx.jpg", "label": "tractor"},
+                 {"image_url": "https://i.imgur.com/3BZtZIX.jpg", "label": "tractor"},
+                 {"image_url": "https://i.imgur.com/tWNlOUA.jpg", "label": "tractor"},
+        {"image_url": "https://i.imgur.com/wqKHn7c.jpg", "label": "mobile home"},
+        {"image_url": "https://i.imgur.com/GBBY6U6.jpeg", "label": "electric guitar"},
+        {"image_url": "https://i.imgur.com/nP6itkJ.jpeg", "label": "electric guitar"},
+        {"image_url": "https://i.imgur.com/Heg8wCg.jpeg", "label": "acoustic guitar"},
+        {"image_url": "https://i.imgur.com/VPuujNm.jpeg", "label": "acoustic guitar"}
+                     ], "n": 1, "operation": "benchmark"}
     # input = {"image_url": "https://i.imgur.com/bXdORXl.jpeg"}
     result = apply(input)
     print(result)
