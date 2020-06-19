@@ -10,7 +10,7 @@ SMID_ALGO = "algo://util/SmartImageDownloader/0.2.x"
 
 
 def load_labels():
-    with open('imagenet_class_index.json') as f:
+    with open('src/imagenet_class_index.json') as f:
         labels = json.load(f)
     labels = [labels[str(k)][1] for k in range(len(labels))]
     return labels
