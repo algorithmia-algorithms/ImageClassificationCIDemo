@@ -52,7 +52,7 @@ def infer_image(image_url, n):
     result = []
     for i in range(n):
         label = labels[indicies[i]].lower().replace("_", " ")
-        confidence = predicted_values[i]
+        confidence = float(predicted_values[i])
         result.append({"label": label, "confidence": confidence})
     return result
 
