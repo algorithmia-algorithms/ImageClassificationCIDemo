@@ -87,11 +87,11 @@ def apply(input):
             else:
                 raise Exception("'data' must be a image url or a list of image urls (with labels)")
             if "operation" in input:
-                if input['operation'] == "predict":
-                    return output
-                else:
+                if input['operation'] == "benchmark":
                     accuracy = calculate_topn_accuracy(output)
                     return accuracy
+                else:
+                    return output
             else:
                 return output
 

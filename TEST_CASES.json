@@ -19,7 +19,7 @@
     "type": "GREATER_OR_EQUAL"
   },
   {"case_name":  "test_input_success",
-    "input": {"data":  "https://i.imgur.com/bXdORXl.jpg", "operation":  "infer"},
+    "input": {"data":  "https://i.imgur.com/bXdORXl.jpg", "operation":  "predict"},
     "type": "NO_EXCEPTION"
   },
   {"case_name":  "test_input_exception",
