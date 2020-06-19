@@ -102,7 +102,7 @@ def apply(input):
     else:
         raise Exception("input  must be a dictionary/json object")
 
-model = load_model("alexnet")
+model = load_model("squeezenet")
 labels = load_labels()
 
 if __name__ == "__main__":
