@@ -9,7 +9,6 @@ CLIENT = Algorithmia.client()
 SMID_ALGO = "algo://util/SmartImageDownloader/0.2.x"
 LABEL_PATH = "data://AlgorithmiaSE/image_cassification_demo/imagenet_class_index.json"
 
-
 def load_labels():
     local_path = CLIENT.file(LABEL_PATH).getFile().name
     with open(local_path) as f:
