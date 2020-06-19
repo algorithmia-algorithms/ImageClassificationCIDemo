@@ -59,16 +59,16 @@ def infer_image(image_url, n):
     return result
 
 
-# def calculate_topn_accuracy(results):
-#     accuracy = 0.0
-#     for result in results:
-#         label = result['label']
-#         for pred in result['predictions']:
-#             if label == pred['label']:
-#                 accuracy += 1.0
-#                 break
-#     accuracy /= len(results)
-#     return accuracy
+def calculate_topn_accuracy(results):
+    accuracy = 0.0
+    for result in results:
+        label = result['label']
+        for pred in result['predictions']:
+            if label == pred['label']:
+                accuracy += 1.0
+                break
+    accuracy /= len(results)
+    return accuracy
 
 
 # API calls will begin at the apply() method, with the request body passed as 'input'
@@ -88,22 +88,21 @@ def apply(input):
                 output = input['data']
             else:
                 raise Exception("'data' must be a image url or a list of image urls (with labels)")
-            # if "operation" in input:
-            #     if input['operation'] == "benchmark":
-            #         accuracy = calculate_topn_accuracy(output)
-            #         return accuracy
-            #     else:
-            #         return output
-            # else:
-            #     return output
-            return output
+            if "operation" in input:
+                if input['operation'] == "benchmark":
+                    accuracy = calculate_topn_accuracy(output)
+                    return accuracy
+                else:
+                    return output
+            else:
+                return output
 
         else:
             raise Exception("'data' must be defined")
     else:
         raise Exception("input  must be a dictionary/json object")
 
-model = load_model("squeezenet")
+model = load_model("alexnet")
 labels = load_labels()
 
 if __name__ == "__main__":
