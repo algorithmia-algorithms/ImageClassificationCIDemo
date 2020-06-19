@@ -7,10 +7,12 @@ from torchvision import transforms
 
 CLIENT = Algorithmia.client()
 SMID_ALGO = "algo://util/SmartImageDownloader/0.2.x"
+LABEL_PATH = "data://AlgorithmiaSE/image_cassification_demo/imagenet_class_index.json"
 
 
 def load_labels():
-    with open('src/imagenet_class_index.json') as f:
+    local_path = CLIENT.file(LABEL_PATH).getFile().name
+    with open(local_path) as f:
         labels = json.load(f)
     labels = [labels[str(k)][1] for k in range(len(labels))]
     return labels
