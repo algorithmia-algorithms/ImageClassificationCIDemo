@@ -26,7 +26,7 @@
                  {"image_url": "https://i.imgur.com/Heg8wCg.jpeg", "label": "acoustic guitar"},
                  {"image_url": "https://i.imgur.com/VPuujNm.jpeg", "label": "acoustic guitar"}
                      ], "n": 1, "operation": "benchmark"},
-    "expected_output": 0.5,
+    "expected_output": 0.7,
     "type": "GREATER_OR_EQUAL"
   },
   {"case_name":  "test_input_success",
