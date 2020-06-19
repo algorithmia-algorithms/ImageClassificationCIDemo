@@ -23,7 +23,7 @@
     "type": "NO_EXCEPTION"
   },
   {"case_name":  "test_input_exception",
-  "input": {"operation":  "infer"},
+  "input": {"operation":  "predict"},
     "type": "EXCEPTION"
   }
 ]
