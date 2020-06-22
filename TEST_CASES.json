@@ -11,11 +11,6 @@
     "input": "https://i.imgur.com/bXdORXl.jpg",
     "type": "NO_EXCEPTION"
   },
-  {"case_name":  "bad_input",
-  "input": {"operation":  "predict"},
-    "type": "EXCEPTION"
-  },
-
   {
     "case_name": "benchmark_model",
     "input":{"data": [
