@@ -112,8 +112,12 @@ def apply(input):
 
         else:
             raise Exception("'data' must be defined")
+    elif isinstance(input, str):
+        n = 3
+        output = infer_image((input, n))
+        return output
     else:
-        raise Exception("input  must be a dictionary/json object")
+        raise Exception("input  must be a dictionary/json object or a string")
 
 model = load_model("squeezenet")
 labels = load_labels()
