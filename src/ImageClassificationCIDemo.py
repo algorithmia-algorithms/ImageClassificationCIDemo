@@ -4,6 +4,8 @@ from PIL import Image
 import json
 from torchvision import models
 from torchvision import transforms
+from concurrent.futures import ThreadPoolExecutor
+from itertools import repeat
 
 CLIENT = Algorithmia.client()
 SMID_ALGO = "algo://util/SmartImageDownloader/0.2.x"
@@ -24,12 +26,14 @@ def load_labels():
 def load_model(name):
     if name == "squeezenet":
         model = models.squeezenet1_1()
-        weights = torch.load(CLIENT.file(MODEL_PATHS['squeezenet']).getFile().name)
+        weights_path = CLIENT.file(MODEL_PATHS['squeezenet']).getFile().name
     else:
         model = models.alexnet()
-        weights = torch.load(CLIENT.file(MODEL_PATHS['alexnet']).getFile().name)
+        weights_path = CLIENT.file(MODEL_PATHS['alexnet']).getFile().name
+    weights = torch.load(weights_path)
     model.load_state_dict(weights)
-    return model.float().eval()
+    model = model.float().eval()
+    return model
 
 
 def load_image(image_url):
@@ -40,7 +44,14 @@ def load_image(image_url):
     return img_data
 
 
-def infer_image(image_url, n):
+def infer_image(tupl):
+    input, n = tupl
+    if isinstance(input, str):
+        image_url = input
+        label = None
+    else:
+        image_url = input['image_url']
+        label = input.get('label', None)
     image_data = load_image(image_url)
     transformed = transforms.Compose([
         transforms.ToTensor(),
@@ -51,18 +62,20 @@ def infer_image(image_url, n):
     preds, indicies = torch.sort(torch.softmax(infered.squeeze(), dim=0), descending=True)
     predicted_values = preds.detach().numpy()
     indicies = indicies.detach().numpy()
-    result = []
+    result = {'predictions': [], 'image_url': image_url}
+    if label:
+        result['ground_truth'] = label
     for i in range(n):
         label = labels[indicies[i]].lower().replace("_", " ")
         confidence = float(predicted_values[i])
-        result.append({"label": label, "confidence": confidence})
+        result['predictions'].append({"label": label, "confidence": confidence})
     return result
 
 
 def calculate_topn_accuracy(results):
     accuracy = 0.0
     for result in results:
-        label = result['label']
+        label = result['ground_truth']
         for pred in result['predictions']:
             if label == pred['label']:
                 accuracy += 1.0
@@ -81,11 +94,11 @@ def apply(input):
             n = 3
         if "data" in input:
             if isinstance(input['data'], str):
-                output = infer_image(input['data'], n)
+                output = infer_image((input['data'], n))
             elif isinstance(input['data'], list):
-                for row in input['data']:
-                    row['predictions'] = infer_image(row['image_url'], n)
-                output = input['data']
+                with ThreadPoolExecutor(max_workers=5) as executor:
+                    output = executor.map(infer_image, zip(input['data'], repeat(n, len(input['data']))))
+                    output = list(output)
             else:
                 raise Exception("'data' must be a image url or a list of image urls (with labels)")
             if "operation" in input:
@@ -107,5 +120,29 @@ labels = load_labels()
 
 if __name__ == "__main__":
     input = {"data": "https://i.imgur.com/bXdORXl.jpeg"}
+    # input = {"data": [
+    #              {"image_url": "https://i.imgur.com/bXdORXl.jpg", "label": "malamute"},
+    #              {"image_url": "https://i.imgur.com/YcAZMxM.jpg", "label": "pomeranian"},
+    #              {"image_url": "https://i.imgur.com/zdMdO70.jpg", "label": "lion"},
+    #              {"image_url": "https://i.imgur.com/ivkGMQb.jpeg", "label": "lion"},
+    #              {"image_url": "https://i.imgur.com/QMRNUMN.jpg", "label": "necklace"},
+    #              {"image_url": "https://i.imgur.com/o7WP6Px.jpg", "label": "necklace"},
+    #              {"image_url": "https://i.imgur.com/FzwSR.jpg", "label": "manhole cover"},
+    #              {"image_url": "https://i.imgur.com/EzllwpE.jpg", "label": "cardigan"},
+    #              {"image_url": "https://i.imgur.com/HMvOHn7.jpg", "label": "cardigan"},
+    #              {"image_url": "https://i.imgur.com/xcLDUQd.jpg", "label": "white wolf"},
+    #              {"image_url": "https://i.imgur.com/gN6zgtN.jpg", "label": "lotion"},
+    #              {"image_url": "https://i.imgur.com/MCt8OWb.jpg", "label": "burrito"},
+    #              {"image_url": "https://i.imgur.com/lhWanDq.jpg", "label": "basketball"},
+    #              {"image_url": "https://i.imgur.com/BZsMhIY.jpeg", "label": "lab coat"},
+    #              {"image_url": "https://i.imgur.com/mVbWXXx.jpg", "label": "tractor"},
+    #              {"image_url": "https://i.imgur.com/3BZtZIX.jpg", "label": "tractor"},
+    #              {"image_url": "https://i.imgur.com/tWNlOUA.jpg", "label": "tractor"},
+    #              {"image_url": "https://i.imgur.com/wqKHn7c.jpg", "label": "mobile home"},
+    #              {"image_url": "https://i.imgur.com/GBBY6U6.jpeg", "label": "electric guitar"},
+    #              {"image_url": "https://i.imgur.com/nP6itkJ.jpeg", "label": "electric guitar"},
+    #              {"image_url": "https://i.imgur.com/Heg8wCg.jpeg", "label": "acoustic guitar"},
+    #              {"image_url": "https://i.imgur.com/VPuujNm.jpeg", "label": "acoustic guitar"}
+    #                  ], "n": 1, "operation": "benchmark"}
     result = apply(input)
     print(result)
