@@ -13,6 +13,7 @@ LABEL_PATH = "data://AlgorithmiaSE/image_cassification_demo/imagenet_class_index
 MODEL_PATHS = {
     "squeezenet": 'data://AlgorithmiaSE/image_cassification_demo/squeezenet1_1-f364aa15.pth',
     'alexnet': 'data://AlgorithmiaSE/image_cassification_demo/alexnet-owt-4df8aa71.pth',
+    'mobilenet': 'data://AlgorithmiaSE/image_cassification_demo/mobilenet_v2-b0353104.pth'
 }
 
 def load_labels():
@@ -27,6 +28,9 @@ def load_model(name):
     if name == "squeezenet":
         model = models.squeezenet1_1()
         weights_path = CLIENT.file(MODEL_PATHS['squeezenet']).getFile().name
+    elif name == "mobilenet":
+        model = models.mobilenet_v2()
+        weights_path = CLIENT.file(MODEL_PATHS['mobilenet']).getFile().name
     else:
         model = models.alexnet()
         weights_path = CLIENT.file(MODEL_PATHS['alexnet']).getFile().name
@@ -115,7 +119,7 @@ def apply(input):
     else:
         raise Exception("input  must be a dictionary/json object")
 
-model = load_model("squeezenet")
+model = load_model("mobilenet")
 labels = load_labels()
 
 if __name__ == "__main__":
