@@ -11,8 +11,8 @@ CLIENT = Algorithmia.client()
 SMID_ALGO = "algo://util/SmartImageDownloader/0.2.x"
 LABEL_PATH = "data://AlgorithmiaSE/image_cassification_demo/imagenet_class_index.json"
 MODEL_PATHS = {
-    "squeezenet": 'data://AlgorithmiaSE/image_cassification_demo/squeezenet1_1-f364aa15.pth',
-    'alexnet': 'data://AlgorithmiaSE/image_cassification_demo/alexnet-owt-4df8aa71.pth',
+    "old_model": 'data://AlgorithmiaSE/image_cassification_demo/squeezenet1_1-f364aa15.pth',
+    'new_model': 'data://AlgorithmiaSE/image_cassification_demo/alexnet-owt-4df8aa71.pth',
 }
 
 def load_labels():
@@ -24,12 +24,12 @@ def load_labels():
 
 
 def load_model(name):
-    if name == "squeezenet":
+    if name == "old_model":
         model = models.squeezenet1_1()
-        weights_path = CLIENT.file(MODEL_PATHS['squeezenet']).getFile().name
+        weights_path = CLIENT.file(MODEL_PATHS['old_model']).getFile().name
     else:
         model = models.alexnet()
-        weights_path = CLIENT.file(MODEL_PATHS['alexnet']).getFile().name
+        weights_path = CLIENT.file(MODEL_PATHS['new_model']).getFile().name
     weights = torch.load(weights_path)
     model.load_state_dict(weights)
     model = model.float().eval()
@@ -119,34 +119,10 @@ def apply(input):
     else:
         raise Exception("input  must be a dictionary/json object or a string")
 
-model = load_model("squeezenet")
+model = load_model("old_model")
 labels = load_labels()
 
 if __name__ == "__main__":
     input = {"data": "https://i.imgur.com/bXdORXl.jpeg"}
-    # input = {"data": [
-    #              {"image_url": "https://i.imgur.com/bXdORXl.jpg", "label": "malamute"},
-    #              {"image_url": "https://i.imgur.com/YcAZMxM.jpg", "label": "pomeranian"},
-    #              {"image_url": "https://i.imgur.com/zdMdO70.jpg", "label": "lion"},
-    #              {"image_url": "https://i.imgur.com/ivkGMQb.jpeg", "label": "lion"},
-    #              {"image_url": "https://i.imgur.com/QMRNUMN.jpg", "label": "necklace"},
-    #              {"image_url": "https://i.imgur.com/o7WP6Px.jpg", "label": "necklace"},
-    #              {"image_url": "https://i.imgur.com/FzwSR.jpg", "label": "manhole cover"},
-    #              {"image_url": "https://i.imgur.com/EzllwpE.jpg", "label": "cardigan"},
-    #              {"image_url": "https://i.imgur.com/HMvOHn7.jpg", "label": "cardigan"},
-    #              {"image_url": "https://i.imgur.com/xcLDUQd.jpg", "label": "white wolf"},
-    #              {"image_url": "https://i.imgur.com/gN6zgtN.jpg", "label": "lotion"},
-    #              {"image_url": "https://i.imgur.com/MCt8OWb.jpg", "label": "burrito"},
-    #              {"image_url": "https://i.imgur.com/lhWanDq.jpg", "label": "basketball"},
-    #              {"image_url": "https://i.imgur.com/BZsMhIY.jpeg", "label": "lab coat"},
-    #              {"image_url": "https://i.imgur.com/mVbWXXx.jpg", "label": "tractor"},
-    #              {"image_url": "https://i.imgur.com/3BZtZIX.jpg", "label": "tractor"},
-    #              {"image_url": "https://i.imgur.com/tWNlOUA.jpg", "label": "tractor"},
-    #              {"image_url": "https://i.imgur.com/wqKHn7c.jpg", "label": "mobile home"},
-    #              {"image_url": "https://i.imgur.com/GBBY6U6.jpeg", "label": "electric guitar"},
-    #              {"image_url": "https://i.imgur.com/nP6itkJ.jpeg", "label": "electric guitar"},
-    #              {"image_url": "https://i.imgur.com/Heg8wCg.jpeg", "label": "acoustic guitar"},
-    #              {"image_url": "https://i.imgur.com/VPuujNm.jpeg", "label": "acoustic guitar"}
-    #                  ], "n": 1, "operation": "benchmark"}
     result = apply(input)
     print(result)
