@@ -1,6 +1,23 @@
 [
- {
-    "case_name": "test_interface",
+  {"case_name":  "test_input_dict",
+    "input": {"data":  "https://i.imgur.com/bXdORXl.jpg", "operation":  "predict"},
+    "type": "NO_EXCEPTION"
+  },
+  {"case_name":  "test_input_list",
+    "input": {"data":  [{"image_url":"https://i.imgur.com/bXdORXl.jpg"}, {"image_url":  "https://i.imgur.com/zdMdO70.jpg"}], "operation":  "predict"},
+    "type": "NO_EXCEPTION"
+  },
+  {"case_name":  "test_input_str",
+    "input": "https://i.imgur.com/bXdORXl.jpg",
+    "type": "NO_EXCEPTION"
+  },
+  {"case_name":  "bad_input",
+  "input": {"operation":  "predict"},
+    "type": "EXCEPTION"
+  },
+
+  {
+    "case_name": "benchmark_model",
     "input":{"data": [
                  {"image_url": "https://i.imgur.com/bXdORXl.jpg", "label": "malamute"},
                  {"image_url": "https://i.imgur.com/YcAZMxM.jpg", "label": "pomeranian"},
@@ -27,13 +44,5 @@
                      ], "n": 1, "operation": "benchmark"},
     "expected_output": 0.7,
     "type": "GREATER_OR_EQUAL"
-  },
-  {"case_name":  "test_input_success",
-    "input": {"data":  "https://i.imgur.com/bXdORXl.jpg", "operation":  "predict"},
-    "type": "NO_EXCEPTION"
-  },
-  {"case_name":  "test_input_exception",
-  "input": {"operation":  "predict"},
-    "type": "EXCEPTION"
   }
 ]
