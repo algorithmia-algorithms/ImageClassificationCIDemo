@@ -122,6 +122,7 @@ def apply(input):
 model = load_model("old_model")
 labels = load_labels()
 
+
 if __name__ == "__main__":
     input = {"data": "https://i.imgur.com/bXdORXl.jpeg"}
     result = apply(input)
