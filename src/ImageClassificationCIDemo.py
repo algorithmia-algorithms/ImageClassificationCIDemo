@@ -15,6 +15,7 @@ MODEL_PATHS = {
     'new_model': 'data://AlgorithmiaSE/image_cassification_demo/alexnet-owt-4df8aa71.pth',
 }
 
+
 def load_labels():
     local_path = CLIENT.file(LABEL_PATH).getFile().name
     with open(local_path) as f:
